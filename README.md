@@ -64,6 +64,93 @@ You can further enhance this application by adding other features, such as stori
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+
+## Communication with flutter
+
+Create the file in your Flutter project
+```sh
+lib/webview_page.dart
+```
+
+Put the Flutter WebView code in this file
+```sh
+// lib/webview_page.dart
+import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+class MyWebView extends StatefulWidget {
+  @override
+  _MyWebViewState createState() => _MyWebViewState();
+}
+
+class _MyWebViewState extends State<MyWebView> {
+  late WebViewController _controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Flutter & Next.js')),
+      body: WebView(
+        initialUrl: 'https://your-nextjs-pwa-url.com', // Your Next.js PWA URL
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (WebViewController controller) {
+          _controller = controller;
+        },
+        javascriptChannels: <JavascriptChannel>{
+          _flutterJavascriptChannel(context),
+        },
+      ),
+    );
+  }
+
+  JavascriptChannel _flutterJavascriptChannel(BuildContext context) {
+    return JavascriptChannel(
+      name: 'Flutter',
+      onMessageReceived: (JavascriptMessage message) {
+        print('Message from Next.js: ${message.message}');
+        // Process messages received from the Next.js PWA
+      },
+    );
+  }
+
+  // Function to send message from Flutter to Next.js
+  void sendMessageToNextJs(String message) {
+    _controller.evaluateJavascript("window.handleFlutterMessage('$message');");
+  }
+}
+```
+
+Modify your main.dart file to include this WebView page
+```sh
+// lib/main.dart
+import 'package:flutter/material.dart';
+import 'webview_page.dart'; // Import the WebView page
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter WebView',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyWebView(), // Set the WebView page as the home page
+    );
+  }
+}
+```
+
+folder structure flutter
+```sh
+lib/
+ ├── main.dart
+ └── webview_page.dart
+```
+
 ## Getting Started
 
 First, run the development server:

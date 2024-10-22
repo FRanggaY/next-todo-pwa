@@ -1,9 +1,16 @@
 "use client";
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export default function Home() {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState([]);
+
+  // Function to send message to Flutter WebView
+  const sendMessageToFlutter = useCallback((message) => {
+    if (window.Flutter) {
+      window.Flutter.postMessage(JSON.stringify(message));
+    }
+  }, []);
 
   const addTask = () => {
     if (task.trim()) {
@@ -41,6 +48,10 @@ export default function Home() {
           </li>
         ))}
       </ul>
+
+      <button onClick={() => sendMessageToFlutter({ type: 'buttonClick', data: 'Hello from Next.js!' })}>
+        Send Message to Flutter
+      </button>
     </div>
   );
 }
